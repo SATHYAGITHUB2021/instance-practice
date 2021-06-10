@@ -21,6 +21,7 @@ INSTANCE_STATE=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${CO
 
 if [ "${INSTANCE_STATE}" = "running" ]; then
   echo "Instance Already Exists!!"
+  DNS_UPDATE
   exit 0
 fi
 
@@ -31,6 +32,7 @@ fi
 
 aws ec2 run-instances --launch-template  LaunchTemplateId=${LID},Version=${LVER} --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${COMPONENT}}]" | jq
 sleep 30
+DNS_UPDATE
 
 
 
