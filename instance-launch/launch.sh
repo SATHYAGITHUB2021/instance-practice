@@ -20,13 +20,13 @@ DNS_UPDATE() {
 INSTANCE_CREATE() {
   INSTANCE_STATE=$(aws --region us-east-1 ec2 describe-instances --filters "Name=tag:Name,Values=${COMPONENT}" | jq .Reservations[].Instances[].State.Name | xargs -n1)
   if [ "${INSTANCE_STATE}" = "running" ]; then
-    echo "Instance Already Exists!!"
+    echo "${COMPONENT} Instance Already Exists!!"
     DNS_UPDATE
     return 0
   fi
 
   if [ "${INSTANCE_STATE}" = "stopped" ]; then
-    echo "Instance Already Exists!!"
+    echo "${COMPONENT} Instance Already Exists!!"
     return 0
   fi
   echo -n Instance ${COMPONENT} created - IPADDRESS is
