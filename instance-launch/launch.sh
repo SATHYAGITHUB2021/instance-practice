@@ -2,7 +2,7 @@
 
 COMPONENT=$1
 
-if [ -z "${component}" ]; then
+if [ -z "${COMPONENT}" ]; then
   echo "Component is Needed"
   exit 1
 fi
