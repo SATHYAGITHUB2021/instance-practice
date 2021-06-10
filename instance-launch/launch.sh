@@ -11,6 +11,11 @@ fi
 LID=lt-0cff640d7e3d4dbdf
 LVER=2
 #Validate if Instance is already there
+DNS_UPDATE() {
+  PRIVATEIP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${COMPONENT}" | jq .Reservations[].Instances[].PrivateIpAddress | xargs -n1)
+  sed -e "s/COMPONENT/${COMPONENT}/" -e "s/IPADDRESS/${PRIVATEIP}/" >/tmp/record.jason
+  $ aws route53 change-resource-record-sets --hosted-zone-id Z04373561YPMQTZH9WA2Z --change-batch file:///tmp/record.json | jq
+}
 
 INSTANCE_STATE=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${COMPONENT}" | jq .Reservations[].Instances[].State.Name | xargs -n1)
 
@@ -24,12 +29,8 @@ if [ "${INSTANCE_STATE}" = "stopped" ]; then
   exit 0
 fi
 
-
 aws ec2 run-instances --launch-template  LaunchTemplateId=${LID},Version=${LVER} --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=${COMPONENT}}]" | jq
+sleep 30
 
-PRIVATEIP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${COMPONENT}" | jq .Reservations[].Instances[].PrivateIpAddress | xargs -n1)
-sed -e "s/COMPONENT/${COMPONENT}/" -e "s/IPADDRESS/${PRIVATEIP}/" >/tmp/record.jason
-
-$ aws route53 change-resource-record-sets --hosted-zone-id Z04373561YPMQTZH9WA2Z --change-batch file:///tmp/record.json | jq
 
 
